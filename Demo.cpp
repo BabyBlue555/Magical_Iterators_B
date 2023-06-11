@@ -2,6 +2,7 @@
 #include "sources/MagicalContainer.hpp"
 
 using namespace ariel;
+using namespace std;
 int main() {
     // Create a MagicalContainer and add some elements
     MagicalContainer container;
@@ -41,6 +42,30 @@ int main() {
     // Remove an element from the container and display the size
     container.removeElement(9);
     std::cout << "Size of container after removing an element: " << container.size() << std::endl;
+
+/*
+///////////////////////////////////////////////////////
+*/
+
+    //I ADDED TO PASS TESTS
+    MagicalContainer Mcontainer;
+    Mcontainer.addElement(100);
+    int end=Mcontainer.getAsscendingElements().size() - 1;
+    cout<<end<<endl;
+    // cout<<Mcontainer.size()<<endl; 
+    MagicalContainer::SideCrossIterator newit(Mcontainer);
+    cout<<Mcontainer.size()<<endl;
+    cout<<newit.getIndex()<<endl;
+   cout<<*newit<<endl;
+   
+
+
+
+
+    
+
+
+
 
     return 0;
 }

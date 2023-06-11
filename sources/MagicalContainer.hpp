@@ -4,9 +4,12 @@
 #include <vector>
 #include <string>
 #include <bits/stdc++.h>
-// don't put using namespace in hpp
-// instead,write the namespace explicitly qualify names (example - std::vector...)
-// source : https://www.appmarq.com/public/changeability,8066,Avoid-using-using-namespace-or-using-declarations-in-header-files
+
+// source- namespace - https://www.appmarq.com/public/changeability,8066,Avoid-using-using-namespace-or-using-declarations-in-header-files
+// source- push_back vs. emplace_back - https://www.codingninjas.com/codestudio/library/vector-push_back-vs-emplace_back 
+// source -  static function -https://www.scaler.com/topics/static-member-function-in-cpp/ 
+// source - inline functions - https://www.geeksforgeeks.org/inline-functions-cpp/ 
+// source - private functions - https://stackoverflow.com/questions/4505938/when-why-to-make-function-private-in-class 
 
 namespace ariel
 {
@@ -18,30 +21,15 @@ namespace ariel
         std::vector<const int *> _elements_sidecross_order;
         std::vector<const int *> _elements_prime_order;
 
+        bool _isPrime(int num); // private, since it is not used outside the class MagicalContainer
+
     public:
         MagicalContainer();
         void addElement(int element);
         void removeElement(int element);
-        // virtual int size();
         size_t size() const;
 
-        static bool _isPrime(int num)
-        {
-            if (num <= 1)
-            {
-                return false;
-            }
-            for (int i = 2; i * i <= num; ++i)
-            {
-                if (num % i == 0)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
 
-        // MagicalContainer(const MagicalContainer& other) = default;
         virtual ~MagicalContainer() = default;
 
         // for tidy: a copy constructor, a copy assignment operator, a move constructor or a move assignment operator
@@ -49,9 +37,6 @@ namespace ariel
         MagicalContainer &operator=(const MagicalContainer &other);    // copy assignment
         MagicalContainer(MagicalContainer &&other) noexcept = default; // move constructor
         MagicalContainer &operator=(MagicalContainer &&) noexcept;     // move assignment
-
-        // MagicalContainer& operator==(const MagicalContainer& other);
-        // MagicalContainer& operator!=(const MagicalContainer& other);
 
         // Iterator classes
         class AscendingIterator;
@@ -99,6 +84,7 @@ namespace ariel
             return AscendingIterator(_container,_container._elements_ascending_order.size());
         }
 
+
     }; // end of AscendingIterator class
 
     class MagicalContainer::SideCrossIterator
@@ -137,6 +123,9 @@ namespace ariel
         SideCrossIterator end() const{
              return SideCrossIterator(_container,_container._elements_sidecross_order.size());
         }
+          int getIndex(){
+            return _index;
+        }
     }; // end of SideCrossIterator class
 
     class MagicalContainer::PrimeIterator
@@ -170,6 +159,9 @@ namespace ariel
         }
         PrimeIterator end() const{
             return PrimeIterator(_container,_container._elements_prime_order.size());
+        }
+          int getIndex(){
+            return _index;
         }
     }; // end of PrimeIterator class
 

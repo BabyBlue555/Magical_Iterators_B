@@ -9,19 +9,34 @@ namespace ariel
 {
 
     MagicalContainer::MagicalContainer() {}
+    bool MagicalContainer::_isPrime(int num)
+    {
+        if (num <= 1)
+        {
+            return false;
+        }
+        for (int i = 2; i * i <= num; ++i)
+        {
+            if (num % i == 0)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
     void MagicalContainer::addElement(int element)
     {
         auto in = _elements.insert(element);
 
-        if (in.second)
+        if (in.second) // if the element was actually inserted 
         {
-            const int *address = &(*in.first);
+            const int *address = &(*in.first); // a reference to the iterator
 
-            _elements_ascending_order.push_back(address);
+            _elements_ascending_order.emplace_back(address);
 
             if (_isPrime(element))
             {
-                _elements_prime_order.push_back(address);
+                _elements_prime_order.emplace_back(address);
                 sort(_elements_prime_order.begin(), _elements_prime_order.end(), [](const int *a, const int *b)
                      { return *a < *b; });
             }
@@ -36,13 +51,18 @@ namespace ariel
 
             while (start <= end && end != 0)
             {
-                _elements_sidecross_order.push_back(_elements_ascending_order.at(start));
+                _elements_sidecross_order.emplace_back(_elements_ascending_order.at(start));
 
                 if (start != end)
-                    _elements_sidecross_order.push_back(_elements_ascending_order.at(end));
+                    _elements_sidecross_order.emplace_back(_elements_ascending_order.at(end));
 
                 start++;
                 end--;
+            }
+            if(end==0){ // single element case
+
+                _elements_sidecross_order.emplace_back(_elements_ascending_order.at(start));
+
             }
         }
     }
@@ -74,8 +94,16 @@ namespace ariel
         _elements_sidecross_order.erase(it_sidecross); // remove element from sidecross iterator
     }
 
-    // copy constructor
-    // MagicalContainer::MagicalContainer(MagicalContainer &other) : _container(other){}
+    MagicalContainer &MagicalContainer::operator=(const MagicalContainer &other)
+    {
+        if (this != &other)
+        {
+            _elements_ascending_order = other._elements_ascending_order;
+            _elements_sidecross_order = other._elements_sidecross_order;
+            _elements_prime_order = other._elements_prime_order;
+        }
+        return *this;
+    }
 
     /*----------------------------------
     *AscendingIterator functions
@@ -86,7 +114,8 @@ namespace ariel
     // assignment
     MagicalContainer::AscendingIterator &MagicalContainer::AscendingIterator::operator=(const AscendingIterator &other)
     {
-        if(&_container != &other._container){
+        if (&_container != &other._container)
+        {
             throw runtime_error("Cannot assign iterators of different containers");
         }
 
@@ -115,12 +144,11 @@ namespace ariel
     // increment
     MagicalContainer::AscendingIterator &MagicalContainer::AscendingIterator::operator++()
     {
+        ++_index;
         if (_index > _container._elements_ascending_order.size())
         {
-            throw std::out_of_range("Iterator out of range");
+            throw std::runtime_error("Iterator out of range");
         }
-
-        ++_index;
         return *this;
     }
     //
@@ -138,7 +166,6 @@ namespace ariel
     bool MagicalContainer::AscendingIterator::operator>(const AscendingIterator &other) const
     {
         return _index > other._index;
-        ;
     }
 
     bool MagicalContainer::AscendingIterator::operator<(const AscendingIterator &other) const
@@ -146,37 +173,32 @@ namespace ariel
         return !((*this > other || *this == other));
     }
 
-    // MagicalContainer::AscendingIterator MagicalContainer::AscendingIterator::begin()
-    // {
-    //     _index = 0;
-    //     return *this;
-    // }
-
     /*----------------------------------
     *SideCrossIterator functions
     ----------------------------------*/
     // constructor
     MagicalContainer::SideCrossIterator::SideCrossIterator(MagicalContainer &container)
-        : _container(container), _index(0), forward(0), backward(static_cast<size_t>(container.size() - 1)), isForward(true) {}
+        : _container(container), _index(0) {}
     MagicalContainer::SideCrossIterator::SideCrossIterator(MagicalContainer &container, size_t index) : _container(container), _index(index) {}
 
     // assignment
     MagicalContainer::SideCrossIterator &MagicalContainer::SideCrossIterator::operator=(const SideCrossIterator &other)
     {
-             if(&_container != &other._container){
+        if (&_container != &other._container)
+        {
             throw runtime_error("Cannot assign iterators of different containers");
         }
 
-        if(this != &other){
+        if (this != &other)
+        {
             _container = other._container;
-            _index=other._index;
-            // forward = other.forward;
-            // backward = other.backward;
-            // isForward = other.isForward;
+            _index = other._index;
+            forward = other.forward;
+            backward = other.backward;
+            isForward = other.isForward;
         }
 
         return *this;
-
     }
 
     // copy constructor
@@ -187,7 +209,7 @@ namespace ariel
     {
         if (_index > _container._elements_sidecross_order.size())
         {
-            throw std::out_of_range("Iterator out of range");
+            throw std::out_of_range("Iterator out of range, ****");
         }
 
         return *(_container._elements_sidecross_order.at(_index));
@@ -195,12 +217,12 @@ namespace ariel
     // increment
     MagicalContainer::SideCrossIterator &MagicalContainer::SideCrossIterator::operator++()
     {
+        ++_index;
         if (_index > _container._elements_sidecross_order.size())
         {
-            throw std::out_of_range("Iterator out of range");
+            throw std::runtime_error("Iterator out of range");
         }
 
-        ++_index;
         return *this;
     }
     //
@@ -223,14 +245,6 @@ namespace ariel
     {
         return !((*this > other || *this == other));
     }
-
-    // MagicalContainer::SideCrossIterator MagicalContainer::SideCrossIterator::begin()
-    // {
-    //     forward = 0;
-    //     backward = _container.getElements().size() - 1;
-    //     isForward = true;
-    //     return *this;
-    // }
 
     /*----------------------------------
     *PrimeIterator functions
@@ -272,12 +286,12 @@ namespace ariel
     // increment
     MagicalContainer::PrimeIterator &MagicalContainer::PrimeIterator::operator++()
     {
+        ++_index;
         if (_index > _container._elements_prime_order.size())
         {
-            throw std::out_of_range("Iterator out of range");
+            throw std::runtime_error("Iterator out of range");
         }
 
-        ++_index;
         return *this;
     }
     //
